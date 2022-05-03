@@ -13,7 +13,7 @@ const UserSchema = new Schema({
     },
     password:{
         type:String,
-        select:true
+        required:true
 
     },
     profile_pic:{
@@ -22,7 +22,7 @@ const UserSchema = new Schema({
     },
     createdAt:{
         type:Date,
-        default:moment().format("DD?MM?YYYY") + ";" + moment().format("hh:mm:ss")
+        default:moment().format("DD/MM/YYYY") + ";" + moment().format("hh:mm:ss")
     
     }, updatedAt:{
         type:Date,
