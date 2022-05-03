@@ -7,10 +7,15 @@ const cors = require('cors')
 const morgan = require('morgan')
 const port =process.env.port
 const database= require('./database')
+//user route
+const userRoutes = require('./routes/users')
+
+
 
 //middleware
 app.use(cors())
 app.use(morgan('dev'))
+app.use("/api/users",userRoutes);
 
 
 

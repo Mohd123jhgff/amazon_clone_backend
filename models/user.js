@@ -12,8 +12,9 @@ const UserSchema = new Schema({
         required:true
     },
     password:{
-        type:String.apply,
-        required:true
+        type:String,
+        select:true
+
     },
     profile_pic:{
         type:String,
@@ -25,7 +26,7 @@ const UserSchema = new Schema({
     
     }, updatedAt:{
         type:Date,
-        default:moment().format("DD?MM?YYYY") + ";" + moment().format("hh:mm:ss")
+        default:moment().format("DD/MM/YYYY") + ";" + moment().format("hh:mm:ss")
     
     }
 
@@ -33,7 +34,7 @@ const UserSchema = new Schema({
 })
 
 //create user model
-mongoose.model("users",userSchema);
+mongoose.model("users",UserSchema);
 
 //export user model
 module.exports = mongoose.model("users");
