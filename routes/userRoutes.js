@@ -3,10 +3,10 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 //const bcrypt = require('body-parser');
 const bodyParser = require('body-parser');
-const {check , validationResult} = require('express-validator')
+const {User , validationResult} = require('express-validator')
 const jwt = require('jsonwebtoken');
 const moment = require('moment')
-const User = require('./../models/user');
+const user = require('./../models/usermodel');
 const token_key = process.env.TOKEN_KEY;
 
 //middleware
@@ -33,15 +33,9 @@ router.get(
 //method:post
 router.post(
     '/register',   
-  [
-      // check empty fields
-      check('username').not().isEmpty().trim().escape(),
-      check('password').not().isEmpty().trim().escape(),
-      // check email
-      check('email').isEmail().normalizeEmail()
-  ] ,
+  
   (req,res)=>{
-      const errors = validationResult(req);
+      const errors = validationResult(req.body);
       // check error is empty or not 
       if(!errors.isEmpty()){
         return res.status(400).json({
@@ -51,13 +45,41 @@ router.post(
       }
        
     
-      const salt = bcrypt.genSalt(10);//generate a string
-      const hashedPassword = bcrypt.hash(req.body.password,salt);  //hashing using bcrypt.
-      return res.status(200).json({
-          "status":true,
-          "data":req.body,
-          "hashedPassword": hashedPassword
+    
+      user.findOne({email:req.body.email}).then((user)=>{
+          //check email exist or not
+          if(user){
+              return res.status(409).json({
+                  "status":false,
+                  "message":"user email already exists"
+              })
+          }else{
+              const salt =  bcrypt.genSaltSync(10);//generate a string
+              let hashedPassword = bcrypt.hashSync(req.body.password,salt);  //hashing using bcrypt.
+
+              const newUser=new User({
+                  email:req.body.email,
+                  username:req.body.username,
+                  password:hashedPassword
+              })
+              newUser.save().then(result =>{
+                  return res.status(200).json({
+                      "status":true,
+                      "user":result
+                  })
+              }).catch(error =>  {
+                  return res.status(501).json({
+                      "status":false,
+                      "error":error
+                  })
+              })
+          }
+      }).catch(error =>{
+          return res.status(500).json({
+              "status":false,
+              "error":error
+          })
       })
-  }
+    }
 )
 module.exports=router
