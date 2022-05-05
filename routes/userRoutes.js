@@ -132,10 +132,23 @@ router.post(
                          "message":"Password dont match..."
                      })
                  }
-
+                 // json web token generate.
+                 let token = jwt.sign(
+                     {
+                         id:user_.id,
+                         email:user.email
+                     },
+                     token_key,
+                     {
+                         expiresIn:3600
+                     }
+                 )
+                // if login success
                     return res.status(200).json({
                         "status":true,
-                        "message":"user exist..."
+                        "message":"login success...",
+                        "token":token,
+                        "user":user
                     });
                 }
 
