@@ -9,6 +9,8 @@ const moment = require('moment')
 const user = require('./../models/usermodel');
 const token_key = process.env.TOKEN_KEY;
 
+const storage = require('./storage');
+
 //middleware
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended:true}));
@@ -81,5 +83,71 @@ router.post(
           })
       })
     }
-)
+);
+//user login route.
+//access:public
+//url:http://localhost:400/api/users/login
+//method:post
+router.post(
+    '/login',
+     [
+           //check empty fields
+           check('req.body.password').not().isEmpty().trim().escape(),
+
+          // check email
+          check('req.body.email').isEmail().normalizeEmail()
+ ],
+    (req,res)=>{
+       // let email = req.body.email
+      //  let password = req.body.password
+       const errors = validationResult(req);
+
+       // check errors is not empty
+       if(!errors.isEmpty()){ 
+                 return res.status(400).json({
+                    "status": false,
+                    "errors":errors.array()
+               })
+
+      }
+      User.findOne({email:req.body.email})
+         
+          .then((user)=>{
+                      // if check not exist
+                      if(!user){
+                          
+                    return res.status(404).json({
+                        "status": false,
+                        "message":"user don't exist..."
+                    });
+                }else{
+                // match user password
+                    let isPasswordMatch = bcrypt.compareSync(req.body.password, user.password);
+                 console.log(isPasswordMatch);
+
+                 //check password is not  match.
+                 if(!isPasswordMatch){
+                     return res.status(401).json({
+                         "status":false,
+                         "message":"Password dont match..."
+                     })
+                 }
+
+                    return res.status(200).json({
+                        "status":true,
+                        "message":"user exist..."
+                    });
+                }
+
+
+           }).catch((error)=>{
+               return res.status(502).json({
+                   "status":false,
+                   "message":"databse error..."
+               })
+           })
+
+     }
+
+);
 module.exports=router

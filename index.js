@@ -16,6 +16,7 @@ const userRoutes = require('./routes/userRoutes')
 app.use(cors())
 app.use(morgan('dev'))
 app.use("/api/users",userRoutes);
+app.use(express.static('public'));
 
 
 
