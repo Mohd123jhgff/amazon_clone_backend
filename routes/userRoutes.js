@@ -11,6 +11,8 @@ const token_key = process.env.TOKEN_KEY;
 
 const storage = require('./storage');
 
+const verifyToken = require('./../middleware/verify_token')
+
 //middleware
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended:true}));
@@ -132,7 +134,7 @@ router.post(
                          "message":"Password dont match..."
                      })
                  }
-                 // json web token generate.
+                 // json web token generath
                  let token = jwt.sign(
                      {
                          id:user_.id,
