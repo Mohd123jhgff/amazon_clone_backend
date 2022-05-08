@@ -11,7 +11,8 @@ const token_key = process.env.TOKEN_KEY;
 
 const storage = require('./storage');
 
-const verifyToken = require('./../middleware/verify_token')
+const verifyToken = require('./../middleware/verify_token');
+const { Router } = require('express');
 
 //middleware
 router.use(bodyParser.json());
@@ -86,6 +87,62 @@ router.post(
       })
     }
 );
+
+
+//access:public
+//method:post
+//http://localhost:400/api/users/uploadProfilePic
+
+router.post(
+    '/uploadProfilePic',
+    varifyToken,
+    (req,res)=>{
+        let upload = storage.getProfilePicUpload();
+
+        upload(req,res,(error)=>{
+
+         // if profile pic not uploaded   
+            if(!req.file){
+                return res.status(400).json({
+                    "status":false,
+                    
+                    "message":"File Upload Fail..."
+            
+        });
+    }
+        //if profile pic upload has error    
+            if(error){
+                return res.status(400).json({
+                    "status":false,
+                    "error":error,
+                    "message":"File Upload Fail..."
+                });
+            }
+            let temp={
+                profile_pic: req.file.filename,
+                updatedAt:moment().format("DD/MM/YYYY")+";"+moment().format("hh:mm:ss")
+            };
+            //stoe new profile pic name to user document 
+            User.findOneAndUpdate({_id:req.user.id},{$set:temp})
+            .then(user=>{
+                return res.status(200).json({
+                    "status":true,
+                    "message":"File upload success",
+                    "profile_pic":"http://localhost:400/profile_pic/"+user.profile_pic
+                });
+            })
+            .catch(error=>{
+            return res.status(502).json({
+                "status":true,
+                "message":"Database Error..."
+            });
+        });
+    });
+}
+)
+ 
+
+
 //user login route.
 //access:public
 //url:http://localhost:400/api/users/login
@@ -134,7 +191,13 @@ router.post(
                          "message":"Password dont match..."
                      })
                  }
-                 // json web token generath
+
+
+            
+
+
+
+                 // json web token generate
                  let token = jwt.sign(
                      {
                          id:user_.id,
@@ -155,9 +218,9 @@ router.post(
                 }
 
 
-           }).catch((error)=>{
+        }).catch((error)=>{
                return res.status(502).json({
-                   "status":false,
+                   "status":false, 
                    "message":"databse error..."
                })
            })
