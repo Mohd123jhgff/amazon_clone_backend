@@ -1,7 +1,9 @@
-const jwt = require('jasonwebtoken');
+const jwt = require('jsonwebtoken');
+const expres = require('express');
 const router = require('../routes/userRoutes');
 const token_key = process.env.TOKEN_KEY;
 const User = require('./../models/usermodel');
+const app = express.Router()
 
 function verifyToken(req,res,next){
     //read jwt token from http header
@@ -52,8 +54,8 @@ function verifyToken(req,res,next){
 
         });
     });
-};
-router.get('/testJWT',verifyToken,(req,res)=>{
+}
+app.get('/testJWT',verifyToken,(req,res)=>{
     return res.status(200).json({
         "status":true,
         "message":"JSON web token working..."

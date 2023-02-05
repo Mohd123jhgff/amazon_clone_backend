@@ -163,6 +163,13 @@ router.post(
 
        // check errors is not empty
        if(!errors.isEmpty()){ 
+           let error = {}
+           for(let index=0;index<errors.array().length;index++){
+               error={
+                   ...error,
+                   [errors.array()[index].param] : errors.array()[index].msg
+               }
+           }
                  return res.status(400).json({
                     "status": false,
                     "errors":errors.array()
